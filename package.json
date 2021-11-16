@@ -14,12 +14,20 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "datejs": "^1.0.0-rc3",
+    "dayjs": "^1.10.7",
+    "firebase": "^9.4.0",
+    "lodash": "^4.17.21",
     "quasar": "^2.0.0",
+    "vue": "^3.2.21",
+    "vue-csv-import": "^4.1.2",
     "vue-i18n": "^9.0.0",
-    "vuex": "^4.0.1"
+    "vuex": "^4.0.1",
+    "vuexfire": "^3.2.5"
   },
   "devDependencies": {
-    "@quasar/app": "^3.0.0"
+    "@quasar/app": "^3.0.0",
+    "workbox-webpack-plugin": "^6.3.0"
   },
   "browserslist": [
     "last 10 Chrome versions",
