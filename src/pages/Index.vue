@@ -75,7 +75,7 @@ const columns = [
   {name: "CEDULA", label: "CEDULA", field: "CEDULA", visible: true},
   {name: "TELEFONO", label: "TELEFONO", field: "TELEFONO", visible: true},
   {name: "VALOR_MENSUAL", label: "VALOR MENSUAL", field: "VALOR_MENSUAL", visible: true},
-  {name: "FECHA_FILIACION", label: "FECHA AFILIACION", field: "FECHA_FILIACION", visible: true},
+  {name: "FECHA_AFILIACION", label: "FECHA FECHA_AFILIACION", field: "FECHA_AFILIACION", visible: true},
   {name: "FECHA_TOKEN", label: "FECHA TOKEN", field: "FECHA_TOKEN", visible: false},
   {name: "UPDATE", label: "FECHA ACTUALIZACION", field: "UPDATE", visible: true},
   {name: "PRIMER_DESCUENTO", label: "PRIMER DESCUENTO", field: "PRIMER_DESCUENTO", visible: false},
@@ -117,7 +117,7 @@ export default {
             lowerCase(item.FECHA_TOKEN).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.UPDATE).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.PRIMER_DESCUENTO).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.AÑOS).indexOf(lowerCase(filterValue.value)) > -1 ||
+            lowerCase(item.ANOS).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.DEPARTAMENTO).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.NOVEDAD).indexOf(lowerCase(filterValue.value)) > -1
         })

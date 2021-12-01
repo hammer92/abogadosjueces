@@ -40,10 +40,10 @@ const fieldsImport = {
   CEDULA: {label: "CEDULA"},
   TELEFONO: {label: "TELEFONO"},
   VALOR_MENSUAL: {label: "VALOR MENSUAL"},
-  FECHA_FILIACION: {label: "FECHA AFILIACION"},
+  FECHA_AFILIACION: {label: "FECHA AFILIACION"},
   FECHA_TOKEN: {label: "FECHA TOKEN"},
   PRIMER_DESCUENTO: {label: "PRIMER DESCUENTO"},
-  AÑOS: {label: "AÑOS"},
+  ANOS: {label: "AÑOS"},
   DEPARTAMENTO: {label: "DEPARTAMENTO"},
   NOVEDAD: {label: "NOVEDAD"},
 };
