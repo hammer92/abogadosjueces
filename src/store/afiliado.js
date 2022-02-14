@@ -81,10 +81,8 @@ export default {
           : "Renovado";
       }
 
-      const UUID = uuidv5(payload["CEDULA"], MY_NAMESPACE);
-      return update(ref(db, `${Affiliates}/${UUID}`), payload).then(() => {
-        commit("addAffiliate", { data: payload, key: payload["CEDULA"] });
-      });
+      const UUID = uuidv5(payload["CEDULA"].toString(), MY_NAMESPACE);
+      return update(ref(db, `${Affiliates}/${UUID}`), payload)
     },
     bindAffiliateRef({ state, commit }) {
       commit("isLoading");
