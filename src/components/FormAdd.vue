@@ -1,16 +1,15 @@
 <template>
   <q-btn
-    style="margin: 0 10px"
-    size="sm"
-    color="accent"
-    dense
-    @click="prompt = !prompt"
-    icon="edit"
+    color="primary"
+    icon-right="add"
+    label="Crear"
+    no-caps
+    @click="ActiveModal"
   />
   <q-dialog v-model="prompt">
     <q-card style="width: 90vw">
       <q-card-section>
-        <div class="text-h6">Actualizar Afiliado</div>
+        <div class="text-h6">Crear Afiliado</div>
       </q-card-section>
 
       <q-separator />
@@ -162,52 +161,61 @@
 <script>
 import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
+import { get } from "lodash";
 
+const initForm = {
+  GRADO: "",
+  NOMBRES_COMPLETO: "",
+  CEDULA: "",
+  TELEFONO: "",
+  VALOR_MENSUAL: "",
+  FECHA_AFILIACION: "",
+  FECHA_TOKEN: "",
+  PRIMER_DESCUENTO: "",
+  ANOS: "",
+  DEPARTAMENTO: "",
+  NOVEDAD: "",
+};
 export default defineComponent({
-  name: "FormUpdate",
-  props: {
-    item: Object,
-  },
-  setup(props) {
+  name: "FormAdd",
+  setup() {
     const store = useStore();
     const prompt = ref(false);
 
     const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const AffiliatedDefault = computed(
+      () => store.getters["config/AffiliatedDefault"]
+    );
 
-    const model = reactive({
-      GRADO: props.item.GRADO,
-      NOMBRES_COMPLETO: props.item.NOMBRES_COMPLETO,
-      CEDULA: props.item.CEDULA,
-      TELEFONO: props.item.TELEFONO,
-      VALOR_MENSUAL: props.item.VALOR_MENSUAL,
-      FECHA_AFILIACION: props.item.FECHA_AFILIACION,
-      FECHA_TOKEN: props.item.FECHA_TOKEN,
-      PRIMER_DESCUENTO: props.item.PRIMER_DESCUENTO,
-      ANOS: props.item.ANOS,
-      DEPARTAMENTO: props.item.DEPARTAMENTO,
-      NOVEDAD: props.item.NOVEDAD,
-    });
+    let model = reactive(initForm);
 
-    return {
-      model,
-      prompt,
-      statusList,
-      onSubmit() {
-        Object.keys(model).forEach(
-          (key) => model[key] === undefined && delete model[key]
-        );
-        console.log(model);
+    const ActiveModal = () => {
+      prompt.value = !prompt.value;
+      model = reactive(initForm);
+      model.NOVEDAD = get(AffiliatedDefault, "value.AddStatus");
+    };
+    const onSubmit = async () => {
+      Object.keys(model).forEach(
+        (key) => model[key] === undefined && delete model[key]
+      );
 
-        store.dispatch("afiliado/createAffiliateRef", model);
-        prompt.value = false;
+      await store.dispatch("afiliado/createAffiliateRef", model);
+      ActiveModal()
 
-        /*$q.notify({
+      /*$q.notify({
             color: 'red-5',
             textColor: 'white',
             icon: 'warning',
             message: 'You need to accept the license and terms first'
           })*/
-      },
+    };
+
+    return {
+      model,
+      prompt,
+      onSubmit,
+      statusList,
+      ActiveModal,
     };
   },
 });

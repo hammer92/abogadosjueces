@@ -2,9 +2,14 @@
   <router-view />
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
-  name: 'App'
-})
+  name: "App",
+  setup() {
+    const store = useStore();
+    store.dispatch("config/bindConfigRef");
+  },
+});
 </script>

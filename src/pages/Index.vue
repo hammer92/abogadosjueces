@@ -19,6 +19,9 @@
                         :columns="columns" :visibleColumns="visibleColumns" :filter="filterValue"/>
           <upload-file/>
 
+          <form-add/>
+
+
           <q-space/>
           <q-input dense outlined color="primary" v-model="filterValue" placeholder="Buscar">
             <template v-slot:append>
@@ -68,6 +71,7 @@ import {useStore} from "vuex";
 import UploadFile from "src/components/UploadFile";
 import DowloadFile from 'src/components/DowloadFile.vue';
 import FormUpdate from "components/FormUpdate";
+import FormAdd from "components/FormAdd";
 
 const columns = [
   {name: "NOMBRES_COMPLETO", label: "NOMBRES COMPLETO", field: "NOMBRES_COMPLETO", visible: true, required: true,},
@@ -88,6 +92,7 @@ const columns = [
 export default {
   name: "PageIndex",
   components: {
+    FormAdd,
     FormUpdate,
     UploadFile,
     DowloadFile,
@@ -99,14 +104,15 @@ export default {
 
     store.dispatch("afiliado/bindAffiliateRef");
 
-    const rows = store.getters["afiliado/all"];
+    const rows = computed(() => store.getters["afiliado/all"]);
+    console.log("rows", rows)
     const loading = computed(() => store.getters["afiliado/loading"])
 
     return {
       visibleColumns: ref(map(columns, "name")),
       columns,
       rows: computed(() => {
-        return filter(rows, (item) => {
+        return filter(rows.value, (item) => {
           if (filterValue.value === "") return true
           return lowerCase(item.NOMBRES_COMPLETO).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.GRADO).indexOf(lowerCase(filterValue.value)) > -1 ||
