@@ -1,6 +1,4 @@
 <template>
-  <q-btn style="margin: 0 10px" size="sm" color="accent" dense
-         @click="prompt = !prompt" icon="edit"/>
   <q-dialog v-model="prompt">
 
     <q-card style=" width:90vw">
@@ -138,15 +136,18 @@ import {useStore} from "vuex";
 
 export default defineComponent({
   name: "FormUpdate",
-  props: {
-    item: Object
-  },
   setup(props) {
 
     const store = useStore();
     const prompt = ref(false);
+    console.log(props.item)
 
-    const model = reactive({
+    const promptAction = (item)=>{
+      console.log("FormUpdate",item);
+    }
+
+    const model = reactive({})
+    /*const model = reactive({
       GRADO: props.item.GRADO,
       NOMBRES_COMPLETO: props.item.NOMBRES_COMPLETO,
       CEDULA: props.item.CEDULA,
@@ -158,10 +159,13 @@ export default defineComponent({
       ANOS: props.item.ANOS,
       DEPARTAMENTO: props.item.DEPARTAMENTO,
       NOVEDAD: props.item.NOVEDAD,
-    });
+    });*/
+
+
 
 
     return {
+      promptAction,
       model,
       prompt,
       onSubmit() {

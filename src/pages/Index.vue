@@ -49,11 +49,14 @@
               :props="props"
             >
               {{ col.value }}
-              <form-update v-if="col.name==='NOMBRES_COMPLETO'" :item="props.row"/>
+              <q-btn v-if="col.name==='NOMBRES_COMPLETO'" style="margin: 0 10px" size="sm" color="accent" dense
+                     @click="editAction(props.row)" icon="edit"/>
             </q-td>
           </q-tr>
         </template>
       </q-table>
+      <form-update ref="formUpdate"/>
+
     </div>
   </q-page>
 </template>
@@ -95,6 +98,7 @@ export default {
   setup() {
     const store = useStore();
     const filterValue = ref('')
+    const formUpdate = ref(null)
     const modelEdit = ref({})
 
     store.dispatch("afiliado/bindAffiliateRef");
@@ -102,7 +106,14 @@ export default {
     const rows = store.getters["afiliado/all"];
     const loading = computed(() => store.getters["afiliado/loading"])
 
+    const editAction = (itemEdit) =>{
+      console.log(formUpdate.value);
+      formUpdate.promptAction(itemEdit)
+    }
+
     return {
+      formUpdate,
+      editAction,
       visibleColumns: ref(map(columns, "name")),
       columns,
       rows: computed(() => {
@@ -138,11 +149,11 @@ export default {
 <style lang="sass">
 .my-sticky-header-column-table
   /* height or max-height is important */
-  height: 510px
+  height: 80vh
 
   /* specifying max-width so the example can
     highlight the sticky column on any browser window */
-  max-width: 1024px
+  max-width: 96vw
 
   td:first-child
     /* bg color is important for td; just specify one */
@@ -156,6 +167,7 @@ export default {
     background: #fff
 
   /* this will be the loading indicator */
+
 
   thead tr:last-child th
     /* height of all previous header rows */
