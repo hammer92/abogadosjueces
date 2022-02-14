@@ -133,14 +133,18 @@
 <script>
 import {defineComponent, ref, reactive} from "vue";
 import {useStore} from "vuex";
+import {computed} from "vue/dist/vue";
 
 export default defineComponent({
   name: "FormUpdate",
-  setup(props) {
+  setup() {
 
     const store = useStore();
     const prompt = ref(false);
-    console.log(props.item)
+    const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const AffiliatedDefault = computed(
+      () => store.getters["config/AffiliatedDefault"]
+    );
 
     const promptAction = (item)=>{
       console.log("FormUpdate",item);
@@ -168,12 +172,15 @@ export default defineComponent({
       promptAction,
       model,
       prompt,
+      statusList,
       onSubmit() {
-        Object.keys(model).forEach(key => model[key] === undefined && delete model[key])
-        console.log(model)
+        Object.keys(model).forEach(
+          (key) => model[key] === undefined && delete model[key]
+        );
+        console.log(model);
 
         store.dispatch("afiliado/createAffiliateRef", model);
-        prompt.value = false
+        prompt.value = false;
 
         /*$q.notify({
             color: 'red-5',
@@ -181,7 +188,7 @@ export default defineComponent({
             icon: 'warning',
             message: 'You need to accept the license and terms first'
           })*/
-      }
+      },
     };
   },
 });

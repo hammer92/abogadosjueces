@@ -2,8 +2,8 @@
   <div class="q-pa-md q-gutter-sm">
     <q-btn
       color="primary"
-      icon-right="archive"
-      label="Export to csv"
+      icon-right="download"
+      label="Exportar"
       no-caps
       @click="exportTable"
     />
