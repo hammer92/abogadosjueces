@@ -1,25 +1,10 @@
 import { find, map, forEach } from "lodash";
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, update, onValue } from "firebase/database";
+import { update, onValue } from "firebase/database";
 import * as dayjs from "dayjs";
 import { v5 as uuidv5 } from "uuid";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyC-6FopE204jTiJ7JIFw2qMDIH5qViw3zs",
-  authDomain: "abogadosjueces.firebaseapp.com",
-  databaseURL: "https://abogadosjueces-default-rtdb.firebaseio.com",
-  projectId: "abogadosjueces",
-  storageBucket: "abogadosjueces.appspot.com",
-  messagingSenderId: "310826167969",
-  appId: "1:310826167969:web:c59b339c61f8c6fe1d8ae0",
-  measurementId: "G-NS6DZVFKHQ",
-};
+import { AffiliatesRef, AffiliatesEdit } from './firebaseconfig'
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-// const AffiliatesRef = ref(db, 'Affiliates')
-const Affiliates = "Affiliates";
-const AffiliatesRef = ref(db, Affiliates);
 const now = dayjs().format("YYYY-MM-DD");
 const MY_NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
 
@@ -82,7 +67,7 @@ export default {
       }
 
       const UUID = uuidv5(payload["CEDULA"].toString(), MY_NAMESPACE);
-      return update(ref(db, `${Affiliates}/${UUID}`), payload)
+      return update(AffiliatesEdit(UUID), payload)
     },
     bindAffiliateRef({ state, commit }) {
       commit("isLoading");
