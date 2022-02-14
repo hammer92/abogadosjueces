@@ -23,10 +23,6 @@
                 v-model="model.CEDULA"
                 label="Nº Documento *"
                 lazy-rules
-                :rules="[
-                  (val) =>
-                    val.match(/^[0-9]+$/) || 'Por favor escriba solo numero',
-                ]"
               />
             </div>
             <div class="col-6 q-pa-sm">
@@ -141,8 +137,9 @@
               />
             </div>
             <div class="col-6 q-pa-sm">
-              <q-input
+              <q-select
                 filled
+                :options="statusList"
                 v-model="model.NOVEDAD"
                 label="Novedad"
                 lazy-rules
@@ -163,7 +160,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -174,6 +171,8 @@ export default defineComponent({
   setup(props) {
     const store = useStore();
     const prompt = ref(false);
+
+    const statusList = computed(() => store.getters["config/AffiliatedState"]);
 
     const model = reactive({
       GRADO: props.item.GRADO,
@@ -192,6 +191,7 @@ export default defineComponent({
     return {
       model,
       prompt,
+      statusList,
       onSubmit() {
         Object.keys(model).forEach(
           (key) => model[key] === undefined && delete model[key]

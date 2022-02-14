@@ -22,10 +22,6 @@
                 v-model="model.CEDULA"
                 label="Nº Documento *"
                 lazy-rules
-                :rules="[
-                  (val) =>
-                    val.match(/^[0-9]+$/) || 'Por favor escriba solo numero',
-                ]"
               />
             </div>
             <div class="col-6 q-pa-sm">
