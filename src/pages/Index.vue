@@ -99,14 +99,15 @@ export default {
 
     store.dispatch("afiliado/bindAffiliateRef");
 
-    const rows = store.getters["afiliado/all"];
+    const rows = computed(() => store.getters["afiliado/all"]);
+    console.log("rows", rows)
     const loading = computed(() => store.getters["afiliado/loading"])
 
     return {
       visibleColumns: ref(map(columns, "name")),
       columns,
       rows: computed(() => {
-        return filter(rows, (item) => {
+        return filter(rows.value, (item) => {
           if (filterValue.value === "") return true
           return lowerCase(item.NOMBRES_COMPLETO).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.GRADO).indexOf(lowerCase(filterValue.value)) > -1 ||
