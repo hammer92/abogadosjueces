@@ -4,7 +4,7 @@
     icon-right="add"
     label="Crear"
     no-caps
-    @click="prompt = !prompt"
+    @click="ActiveModal"
   />
   <q-dialog v-model="prompt">
     <q-card style="width: 90vw">
@@ -140,8 +140,9 @@
               />
             </div>
             <div class="col-6 q-pa-sm">
-              <q-input
+              <q-select
                 filled
+                :options="statusList"
                 v-model="model.NOVEDAD"
                 label="Novedad"
                 lazy-rules
@@ -162,36 +163,48 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from "vue";
+import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
+import { get } from "lodash";
 
+const initForm = {
+  GRADO: "",
+  NOMBRES_COMPLETO: "",
+  CEDULA: "",
+  TELEFONO: "",
+  VALOR_MENSUAL: "",
+  FECHA_AFILIACION: "",
+  FECHA_TOKEN: "",
+  PRIMER_DESCUENTO: "",
+  ANOS: "",
+  DEPARTAMENTO: "",
+  NOVEDAD: "",
+};
 export default defineComponent({
   name: "FormAdd",
   setup() {
     const store = useStore();
     const prompt = ref(false);
 
-    const model = reactive({
-      GRADO: "",
-      NOMBRES_COMPLETO: "",
-      CEDULA: "",
-      TELEFONO: "",
-      VALOR_MENSUAL: "",
-      FECHA_AFILIACION: "",
-      FECHA_TOKEN: "",
-      PRIMER_DESCUENTO: "",
-      ANOS: "",
-      DEPARTAMENTO: "",
-      NOVEDAD: "",
-    });
+    const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const AffiliatedDefault = computed(
+      () => store.getters["config/AffiliatedDefault"]
+    );
 
+    let model = reactive(initForm);
+
+    const ActiveModal = () => {
+      prompt.value = !prompt.value;
+      model = reactive(initForm);
+      model.NOVEDAD = get(AffiliatedDefault, "value.AddStatus");
+    };
     const onSubmit = async () => {
       Object.keys(model).forEach(
         (key) => model[key] === undefined && delete model[key]
       );
 
       await store.dispatch("afiliado/createAffiliateRef", model);
-      prompt.value = false;
+      ActiveModal()
 
       /*$q.notify({
             color: 'red-5',
@@ -205,6 +218,8 @@ export default defineComponent({
       model,
       prompt,
       onSubmit,
+      statusList,
+      ActiveModal,
     };
   },
 });
