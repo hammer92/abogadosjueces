@@ -113,8 +113,7 @@ export default {
     const loading = computed(() => store.getters["afiliado/loading"])
 
     const editAction = (itemEdit) =>{
-      console.log(formUpdate.value);
-      formUpdate.promptAction(itemEdit)
+      formUpdate.value.promptAction(itemEdit)
     }
 
     return {

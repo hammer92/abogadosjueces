@@ -21,7 +21,7 @@ export default {
 
   mutations: {
     updateConfig(state, data) {
-      state.Config = data || {};
+      state.Config = data || state.Config;
     },
   },
 
