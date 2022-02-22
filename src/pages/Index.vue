@@ -8,7 +8,6 @@
                :columns="columns"
                row-key="name"
                :visible-columns="visibleColumns"
-               :loading="loading"
                :pagination="pagination"
       >
         <template v-slot:top="props">
@@ -16,7 +15,8 @@
 
           <q-space/>
           <dowload-file :rows="rows"
-                        :columns="columns" :visibleColumns="visibleColumns" :filter="filterValue"/>
+                        :visible="visibleColumns"
+                        :columns="columns"/>
           <upload-file/>
 
           <form-add/>
@@ -78,17 +78,22 @@ import FormAdd from "components/FormAdd";
 
 const columns = [
   {name: "NOMBRES_COMPLETO", label: "NOMBRES COMPLETO", field: "NOMBRES_COMPLETO", visible: true, required: true,},
-  {name: "GRADO", label: "GRADO", field: "GRADO", visible: true},
   {name: "CEDULA", label: "CEDULA", field: "CEDULA", visible: true},
+  {name: "NUMERO_CONTRATO", label: "Nº CONTRATO", field: "NUMERO_CONTRATO", visible: true},
+  {name: "DIRECCION", label: "DIRECCION", field: "DIRECCION", visible: true},
+  {name: "CIUDAD", label: "CIUDAD", field: "CIUDAD", visible: true},
   {name: "TELEFONO", label: "TELEFONO", field: "TELEFONO", visible: true},
-  {name: "VALOR_MENSUAL", label: "VALOR MENSUAL", field: "VALOR_MENSUAL", visible: true},
-  {name: "FECHA_AFILIACION", label: "FECHA FECHA_AFILIACION", field: "FECHA_AFILIACION", visible: true},
+  {name: "EMAIL", label: "EMAIL", field: "EMAIL", visible: true},
+  {name: "GRADO", label: "GRADO", field: "GRADO", visible: true},
+  {name: "PRIMER_DESCUENTO", label: "PRIMER DESCUENTO", field: "PRIMER_DESCUENTO", visible: false},
+  {name: "EMPRESA", label: "EMPRESA ", field: "PRIMER_DESCUENTO", visible: false},
+  {name: "PLAN_MENSUAL", label: "PLAN MENSUAL", field: "PLAN_MENSUAL", visible: true},
+  {name: "FECHA_AFILIACION", label: "FECHA AFILIACION", field: "FECHA_AFILIACION", visible: true},
+  {name: "NOVEDAD", label: "NOVEDAD", field: "NOVEDAD", visible: true},
   {name: "FECHA_TOKEN", label: "FECHA TOKEN", field: "FECHA_TOKEN", visible: false},
   {name: "UPDATE", label: "FECHA ACTUALIZACION", field: "UPDATE", visible: true},
-  {name: "PRIMER_DESCUENTO", label: "PRIMER DESCUENTO", field: "PRIMER_DESCUENTO", visible: false},
   {name: "AÑOS", label: "AÑOS", field: "AÑOS", visible: false},
   {name: "DEPARTAMENTO", label: "DEPARTAMENTO", field: "DEPARTAMENTO", visible: false},
-  {name: "NOVEDAD", label: "NOVEDAD", field: "NOVEDAD", visible: true},
 ];
 
 
@@ -109,7 +114,6 @@ export default {
     store.dispatch("afiliado/bindAffiliateRef");
 
     const rows = computed(() => store.getters["afiliado/all"]);
-    console.log("rows", rows)
     const loading = computed(() => store.getters["afiliado/loading"])
 
     const editAction = (itemEdit) =>{
@@ -119,7 +123,7 @@ export default {
     return {
       formUpdate,
       editAction,
-      visibleColumns: ref(map(columns, "name")),
+      visibleColumns: ref(map(filter(columns, 'visible'), "name")),
       columns,
       rows: computed(() => {
         return filter(rows.value, (item) => {

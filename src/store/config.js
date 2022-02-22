@@ -1,4 +1,3 @@
-import { find, map, forEach } from "lodash";
 import { update, onValue } from "firebase/database";
 
 import { ConfigRef } from "./firebaseconfig";
@@ -7,6 +6,7 @@ export default {
   namespaced: true,
   state: {
     Config: {
+      AffiliateContractNumber: 0,
       AffiliatedFile: {},
       AffiliatedPlans: {},
       AffiliatedState: {},
@@ -14,6 +14,7 @@ export default {
   },
 
   getters: {
+    AffiliateContractNumber: (state) => state.Config.AffiliateContractNumber,
     AffiliatedDefault: (state) => state.Config.AffiliatedDefault,
     AffiliatedPlans: (state) => state.Config.AffiliatedPlans,
     AffiliatedState: (state) => state.Config.AffiliatedState,
@@ -23,6 +24,9 @@ export default {
     updateConfig(state, data) {
       state.Config = data || state.Config;
     },
+    addAffiliateContractNumber (state, data){
+      state.Config.AffiliateContractNumber += 1 
+    }
   },
 
   actions: {

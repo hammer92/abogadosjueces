@@ -13,9 +13,7 @@
               <q-input
                 filled
                 v-model="model.CEDULA"
-                label="Nº Documento *"
-                lazy-rules
-                :rules="[(val) => val || 'Por favor escriba algo']"
+                label="Nº Documento"
               />
             </div>
             <div class="col-6 q-pa-sm">
@@ -158,6 +156,7 @@ import { useStore } from "vuex";
 const initForm = {
   GRADO: "",
   NOMBRES_COMPLETO: "",
+  NUMERO_CONTRATO: "0",
   CEDULA: "",
   TELEFONO: "",
   VALOR_MENSUAL: "",
@@ -178,10 +177,11 @@ export default defineComponent({
     let model = reactive(initForm);
 
     const promptAction = (item) => {
-      console.log(item)
+      console.log(item);
       model.GRADO = item.GRADO;
       model.NOMBRES_COMPLETO = item.NOMBRES_COMPLETO;
       model.CEDULA = item.CEDULA;
+      model.NUMERO_CONTRATO = item.NUMERO_CONTRATO;
       model.TELEFONO = item.TELEFONO;
       model.VALOR_MENSUAL = item.VALOR_MENSUAL;
       model.FECHA_AFILIACION = item.FECHA_AFILIACION;

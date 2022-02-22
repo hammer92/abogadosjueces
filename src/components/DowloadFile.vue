@@ -11,20 +11,17 @@
 </template>
 
 <script>
-import {defineComponent} from "vue";
-import {exportFile, useQuasar} from 'quasar'
-import {find} from "lodash";
+import { defineComponent } from "vue";
+import { exportFile, useQuasar } from "quasar";
+import { filter } from "lodash";
 
 function wrapCsvValue(val, formatFn) {
-  let formatted = formatFn !== void 0
-    ? formatFn(val)
-    : val
+  let formatted = formatFn !== void 0 ? formatFn(val) : val;
 
-  formatted = formatted === void 0 || formatted === null
-    ? ''
-    : String(formatted)
+  formatted =
+    formatted === void 0 || formatted === null ? "" : String(formatted);
 
-  formatted = formatted.split('"').join('""')
+  formatted = formatted.split('"').join('""');
   /**
    * Excel accepts \n and \r in strings, but some other CSV parsers do not
    * Uncomment the next two lines to escape new lines
@@ -32,37 +29,31 @@ function wrapCsvValue(val, formatFn) {
   // .split('\n').join('\\n')
   // .split('\r').join('\\r')
 
-  return `"${formatted}"`
+  return `"${formatted}"`;
 }
 
 export default defineComponent({
   name: "DowloadFile",
   props: {
-    item: Array,
-    visibleColumns: Array,
+    columns: Array,
+    visible: Array,
     rows: Array,
   },
   setup(props, context) {
-
-    const $q = useQuasar()
+    const $q = useQuasar();
     const exportTable = () => {
 
-      // naive encoding to csv format
-      const content = [props.visibleColumns.map(col => wrapCsvValue(find(props.columns, ['name', col]).label))].concat(
-        props.rows.map(row => props.visibleColumns.map((vis) => {
-              const col = find(props.columns, ['name', vis])
-              return wrapCsvValue(
-                typeof col.field === 'function'
-                  ? col.field(row)
-                  : row[col.field === void 0 ? col.name : col.field],
-                col.format
-              )
-            }
-          ).join(';')
-        )
-      ).join('\r\n')
-
-      console.log(content)
+      const columns = filter(props.columns, (item) => props.visible.includes(item.field));
+      const rows = props.rows;
+      
+      const content = [columns.map(col => wrapCsvValue(col.label))].concat(
+          rows.map(row => columns.map(col => wrapCsvValue(
+            typeof col.field === 'function'
+              ? col.field(row)
+              : row[ col.field === void 0 ? col.name : col.field ],
+            col.format
+          )).join(','))
+        ).join('\r\n')
 
       const status = exportFile(
         'table-export.csv',
@@ -77,10 +68,10 @@ export default defineComponent({
            icon: 'warning'
          })
        }
-    }
+    };
 
     return {
-      exportTable
+      exportTable,
     };
   },
 });
