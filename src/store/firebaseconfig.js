@@ -21,9 +21,11 @@ const firebaseConfig = {
   
   const Config = "Config";
   const ConfigRef = ref(db, Config);
+  const DbRef = ref(db);
 
   export {
     AffiliatesRef,
     AffiliatesEdit,
-    ConfigRef
+    ConfigRef,
+    DbRef
   }

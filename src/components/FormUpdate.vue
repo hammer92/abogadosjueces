@@ -1,12 +1,4 @@
 <template>
-  <q-btn
-    style="margin: 0 10px"
-    size="sm"
-    color="accent"
-    dense
-    @click="prompt = !prompt"
-    icon="edit"
-  />
   <q-dialog v-model="prompt">
     <q-card style="width: 90vw">
       <q-card-section>
@@ -21,8 +13,7 @@
               <q-input
                 filled
                 v-model="model.CEDULA"
-                label="Nº Documento *"
-                lazy-rules
+                label="Nº Documento"
               />
             </div>
             <div class="col-6 q-pa-sm">
@@ -162,33 +153,51 @@
 <script>
 import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
-
+const initForm = {
+  GRADO: "",
+  NOMBRES_COMPLETO: "",
+  NUMERO_CONTRATO: "0",
+  CEDULA: "",
+  TELEFONO: "",
+  VALOR_MENSUAL: "",
+  FECHA_AFILIACION: "",
+  FECHA_TOKEN: "",
+  PRIMER_DESCUENTO: "",
+  ANOS: "",
+  DEPARTAMENTO: "",
+  NOVEDAD: "",
+};
 export default defineComponent({
   name: "FormUpdate",
-  props: {
-    item: Object,
-  },
-  setup(props) {
+  setup() {
     const store = useStore();
     const prompt = ref(false);
-
     const statusList = computed(() => store.getters["config/AffiliatedState"]);
 
-    const model = reactive({
-      GRADO: props.item.GRADO,
-      NOMBRES_COMPLETO: props.item.NOMBRES_COMPLETO,
-      CEDULA: props.item.CEDULA,
-      TELEFONO: props.item.TELEFONO,
-      VALOR_MENSUAL: props.item.VALOR_MENSUAL,
-      FECHA_AFILIACION: props.item.FECHA_AFILIACION,
-      FECHA_TOKEN: props.item.FECHA_TOKEN,
-      PRIMER_DESCUENTO: props.item.PRIMER_DESCUENTO,
-      ANOS: props.item.ANOS,
-      DEPARTAMENTO: props.item.DEPARTAMENTO,
-      NOVEDAD: props.item.NOVEDAD,
-    });
+    let model = reactive(initForm);
+
+    const promptAction = (item) => {
+      console.log(item);
+      model.GRADO = item.GRADO;
+      model.NOMBRES_COMPLETO = item.NOMBRES_COMPLETO;
+      model.CEDULA = item.CEDULA;
+      model.NUMERO_CONTRATO = item.NUMERO_CONTRATO;
+      model.TELEFONO = item.TELEFONO;
+      model.VALOR_MENSUAL = item.VALOR_MENSUAL;
+      model.FECHA_AFILIACION = item.FECHA_AFILIACION;
+      model.FECHA_TOKEN = item.FECHA_TOKEN;
+      model.PRIMER_DESCUENTO = item.PRIMER_DESCUENTO;
+      model.ANOS = item.ANOS;
+      model.DEPARTAMENTO = item.DEPARTAMENTO;
+      model.NOVEDAD = item.NOVEDAD;
+
+      prompt.value = !prompt.value;
+    };
+
+    /*const ;*/
 
     return {
+      promptAction,
       model,
       prompt,
       statusList,

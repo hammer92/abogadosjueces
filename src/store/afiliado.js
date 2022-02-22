@@ -3,7 +3,7 @@ import { update, onValue } from "firebase/database";
 import * as dayjs from "dayjs";
 import { v5 as uuidv5 } from "uuid";
 
-import { AffiliatesRef, AffiliatesEdit } from './firebaseconfig'
+import { AffiliatesRef, AffiliatesEdit, DbRef } from './firebaseconfig'
 
 const now = dayjs().format("YYYY-MM-DD");
 const MY_NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
@@ -47,13 +47,16 @@ export default {
 
       dispatch("deactivateAffiliates");
     },
-    createAffiliateRef({ commit, state }, payload) {
+    createAffiliateRef({ commit, state, rootGetters  }, payload) {
+      let ContractNumber = rootGetters['config/AffiliateContractNumber']
+      const AffiliatedDefault = rootGetters['config/AffiliatedDefault']
+
       if (payload["CEDULA"]) payload["CEDULA"] = parseInt(payload["CEDULA"]);
+      
       if (payload["TELEFONO"])
         payload["TELEFONO"] = parseInt(payload["TELEFONO"]);
-      if (payload["VALOR_MENSUAL"])
-        payload["VALOR_MENSUAL"] = parseInt(payload["VALOR_MENSUAL"]);
-      payload["UPDATE"] = now;
+     
+        payload["UPDATE"] = now;
 
       //NOVEDAD
       if (!payload["NOVEDAD"]) {
@@ -62,12 +65,24 @@ export default {
           payload["CEDULA"],
         ]);
         payload["NOVEDAD"] = [null, undefined].includes(findAffiliate)
-          ? "Affiliate"
-          : "Renovado";
+          ? AffiliatedDefault.AddStatus
+          : AffiliatedDefault.ActiveStatus;
       }
+      if([0, "0"].includes(payload["NUMERO_CONTRATO"])){
+         payload["NUMERO_CONTRATO"] = ContractNumber
+         ContractNumber = ContractNumber + 1      
+        }
 
       const UUID = uuidv5(payload["CEDULA"].toString(), MY_NAMESPACE);
-      return update(AffiliatesEdit(UUID), payload)
+      
+
+      const updatesData = {};
+      updatesData[`Affiliates/${UUID}`] = payload;
+      updatesData["Config/AffiliateContractNumber"] = ContractNumber;
+      
+      console.log(updatesData)
+      
+      return update(DbRef, updatesData)
     },
     bindAffiliateRef({ state, commit }) {
       commit("isLoading");

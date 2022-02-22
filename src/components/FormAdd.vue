@@ -162,19 +162,28 @@
 import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 import { get } from "lodash";
+import * as dayjs from "dayjs";
+
+
+const now = dayjs().format("YYYY-MM-DD");
 
 const initForm = {
-  GRADO: "",
   NOMBRES_COMPLETO: "",
   CEDULA: "",
+  DIRECCION: "",
+  CIUDAD: "",
+  NUMERO_CONTRATO: "0",
   TELEFONO: "",
-  VALOR_MENSUAL: "",
-  FECHA_AFILIACION: "",
-  FECHA_TOKEN: "",
+  EMAIL: "",
+  GRADO: "",
   PRIMER_DESCUENTO: "",
+  EMPRESA: "",
+  PLAN_MENSUAL: "",
+  FECHA_AFILIACION: now,
+  NOVEDAD: "AfiliadoWeb",
+  FECHA_TOKEN: "",
   ANOS: "",
   DEPARTAMENTO: "",
-  NOVEDAD: "",
 };
 export default defineComponent({
   name: "FormAdd",
@@ -191,7 +200,17 @@ export default defineComponent({
 
     const ActiveModal = () => {
       prompt.value = !prompt.value;
-      model = reactive(initForm);
+      model.GRADO = initForm.GRADO;
+      model.NOMBRES_COMPLETO = initForm.NOMBRES_COMPLETO;
+      model.CEDULA = initForm.CEDULA;
+      model.NUMERO_CONTRATO = initForm.NUMERO_CONTRATO;
+      model.TELEFONO = initForm.TELEFONO;
+      model.VALOR_MENSUAL = initForm.VALOR_MENSUAL;
+      model.FECHA_AFILIACION = initForm.FECHA_AFILIACION;
+      model.FECHA_TOKEN = initForm.FECHA_TOKEN;
+      model.PRIMER_DESCUENTO = initForm.PRIMER_DESCUENTO;
+      model.ANOS = initForm.ANOS;
+      model.DEPARTAMENTO = initForm.DEPARTAMENTO;
       model.NOVEDAD = get(AffiliatedDefault, "value.AddStatus");
     };
     const onSubmit = async () => {
@@ -200,7 +219,7 @@ export default defineComponent({
       );
 
       await store.dispatch("afiliado/createAffiliateRef", model);
-      ActiveModal()
+     prompt.value = !prompt.value;
 
       /*$q.notify({
             color: 'red-5',
