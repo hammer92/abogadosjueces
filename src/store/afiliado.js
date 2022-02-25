@@ -3,7 +3,7 @@ import { update, onValue } from "firebase/database";
 import * as dayjs from "dayjs";
 import { v5 as uuidv5 } from "uuid";
 
-import { AffiliatesRef, AffiliatesEdit, DbRef } from './firebaseconfig'
+import { AffiliatesRef, DbRef, uploadFile } from './firebaseconfig'
 
 const now = dayjs().format("YYYY-MM-DD");
 const MY_NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
@@ -97,5 +97,9 @@ export default {
         }
       );
     },
+
+    uploadFile({ state, commit }, payload){
+      return uploadFile(payload)
+    }
   },
 };
