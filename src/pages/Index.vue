@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import { map, filter, lowerCase, get, find } from "lodash";
+import { map, filter, lowerCase, get } from "lodash";
 import { ref, computed } from "vue";
 import axios from "axios";
 
@@ -175,7 +175,7 @@ const columns = [
   {
     name: "PLAN_MENSUAL",
     label: "PLAN MENSUAL",
-    field: function (item){ return item.PLAN_MENSUAL.Name},
+    field: function (item){ return (item.PLAN_MENSUAL || {Name:"Sin Plan"}).Name},
     visible: true,
   },
   {

@@ -4,6 +4,7 @@ import messages from 'src/i18n'
 
 import {VueCsvImportPlugin} from "vue-csv-import";
 
+
 export default boot(({ app }) => {
   const i18n = createI18n({
     locale: 'en-US',
