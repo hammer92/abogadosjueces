@@ -50,10 +50,14 @@
               <q-input filled v-model="model.TELEFONO" label="Telefono" />
             </div>
             <div class="col-6 q-pa-sm">
-              <q-input
+              <q-select
                 filled
-                v-model="model.VALOR_MENSUAL"
-                label="Valor Mensual"
+                :options="affiliatedPlans"
+                v-model="model.PLAN_MENSUAL"
+                label="Plan Mensual"
+                option-value="FileName"
+                option-label="Name"
+                lazy-rules
               />
             </div>
             <div class="col-6 q-pa-sm">
@@ -161,7 +165,7 @@
 <script>
 import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
-import { get } from "lodash";
+import { get, map } from "lodash";
 import * as dayjs from "dayjs";
 
 
@@ -184,6 +188,8 @@ const initForm = {
   FECHA_TOKEN: "",
   ANOS: "",
   DEPARTAMENTO: "",
+  PIN_PAGO: "",
+  ESTADOCONTRATO: 0,
 };
 export default defineComponent({
   name: "FormAdd",
@@ -192,6 +198,7 @@ export default defineComponent({
     const prompt = ref(false);
 
     const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const affiliatedPlans = computed(() => store.getters["config/AffiliatedPlans"]);
     const AffiliatedDefault = computed(
       () => store.getters["config/AffiliatedDefault"]
     );
@@ -211,6 +218,8 @@ export default defineComponent({
       model.PRIMER_DESCUENTO = initForm.PRIMER_DESCUENTO;
       model.ANOS = initForm.ANOS;
       model.DEPARTAMENTO = initForm.DEPARTAMENTO;
+      model.ESTADOCONTRATO = initForm.ESTADOCONTRATO;
+      model.PIN_PAGO = initForm.PIN_PAGO;
       model.NOVEDAD = get(AffiliatedDefault, "value.AddStatus");
     };
     const onSubmit = async () => {
@@ -234,6 +243,7 @@ export default defineComponent({
       prompt,
       onSubmit,
       statusList,
+      affiliatedPlans,
       ActiveModal,
     };
   },

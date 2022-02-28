@@ -1,6 +1,12 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md">
+    <q-inner-loading
+      :showing="loadingAction.status"
+      :label="loadingAction.message"
+      label-class="text-teal"
+      label-style="font-size: 1.1em"
+    />
+    <div class="q-pa-md" v-show="!loadingAction.status">
       <q-table
         ref="table"
         class="my-sticky-header-column-table"
@@ -55,29 +61,68 @@
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              {{ col.value }}
+              <template v-if="col.name === 'PLAN_MENSUAL'">
+                {{ col.value.Name || "" }}
+              </template>
+              <template v-else>
+                {{ col.value }}
+              </template>
+
               <template v-if="col.name === 'NOMBRES_COMPLETO'">
-                <q-btn-dropdown flat color="primary" >
+                <q-btn-dropdown flat color="primary">
+                  <template v-slot:label>
+                    <div class="q-pa-md q-gutter-md">
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 1"
+                    rounded
+                    color="yellow"
+                  />
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 2"
+                    rounded
+                    color="green"
+                  />
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 3"
+                    rounded
+                    color="red"
+                  />
+                </div>
+                  </template>
                   <q-list>
-                    <q-item clickable v-close-popup @click="editAction(props.row)">
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="editAction(props.row)"
+                    >
                       <q-item-section>
                         <q-item-label>Editar</q-item-label>
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-close-popup @click="generateContract(props.row)">
+                    <q-item
+                      v-if="col.name === 'NOMBRES_COMPLETO'"
+                      clickable
+                      v-close-popup
+                      @click="generateContract(props.row)"
+                    >
                       <q-item-section>
                         <q-item-label>Generar Contrato</q-item-label>
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable v-close-popup @click="">
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sendContract(props.row)"
+                    >
                       <q-item-section>
-                        <q-item-label>enviar Contrato</q-item-label>
+                        <q-item-label>Enviar Contrato</q-item-label>
                       </q-item-section>
                     </q-item>
                   </q-list>
-                </q-btn-dropdown>  
+                </q-btn-dropdown>
+                
               </template>
             </q-td>
           </q-tr>
@@ -89,11 +134,12 @@
 </template>
 
 <script>
-import { map, filter, lowerCase } from "lodash";
+import { map, filter, lowerCase, get, find } from "lodash";
 import { ref, computed } from "vue";
 import axios from "axios";
 
 import { useStore } from "vuex";
+import { useQuasar } from "quasar";
 
 import UploadFile from "src/components/UploadFile";
 import DowloadFile from "src/components/DowloadFile.vue";
@@ -166,6 +212,12 @@ const columns = [
   },
 ];
 
+function ValidateEmail(mail) {
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+    return true;
+  }
+  return false;
+}
 export default {
   name: "PageIndex",
   components: {
@@ -176,20 +228,88 @@ export default {
   },
   setup() {
     const store = useStore();
+    const $q = useQuasar();
+
     const filterValue = ref("");
     const formUpdate = ref(null);
     const modelEdit = ref({});
+    const loadingAction = ref({
+      status: false,
+      message: "Cargando...",
+    });
 
     store.dispatch("afiliado/bindAffiliateRef");
 
     const rows = computed(() => store.getters["afiliado/all"]);
     const loading = computed(() => store.getters["afiliado/loading"]);
+    const affiliatedPlans = computed(
+      () => store.getters["config/AffiliatedPlans"]
+    );
 
     const editAction = (itemEdit) => {
       formUpdate.value.promptAction(itemEdit);
     };
 
+    const sendContract = ({ key, EMAIL }) => {
+      if (!ValidateEmail(EMAIL)) {
+        $q.notify({
+          color: "red-5",
+          textColor: "white",
+          icon: "warning",
+          message: "correo electronico invalido",
+        });
+        return;
+      }
+      loadingAction.value.status = true;
+      loadingAction.value.message = "enviado contrato por correo...";
+      axios({
+        url: "http://localhost:8000/send-email",
+        method: "POST",
+        data: { key, EMAIL },
+      })
+        .then(async function ({ data }) {
+          if (data.code === "Error") {
+            $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "No se ha generado un contrato para enviar",
+            });
+            loadingAction.value.status = false;
+
+            return;
+          }
+          await store.dispatch("afiliado/statusContract", {
+            UUID: key,
+            status: 2,
+          });
+          loadingAction.value.status = false;
+        })
+        .catch(function (error) {
+           $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "Error intente mas tarde...",
+            });
+          loadingAction.value.status = false;
+          console.error(error);
+        });
+    };
+
     const generateContract = (item) => {
+       if (["", null, undefined].includes(item.PLAN_MENSUAL|| "")) {
+        $q.notify({
+          color: "red-5",
+          textColor: "white",
+          icon: "warning",
+          message: "No tiene plan activo",
+        });
+        return;
+      }
+
+      loadingAction.value.status = true;
+      loadingAction.value.message = "Generando contrato...";
       axios({
         url: "http://localhost:8000/fill-data-pdfs",
         method: "POST",
@@ -198,21 +318,36 @@ export default {
       })
         .then(async function (response) {
           if (response.status) {
-            console.log(response);
-            const res = await store.dispatch("afiliado/uploadFile", {
+            loadingAction.value.message = "Guardando contrato...";
+
+            await store.dispatch("afiliado/uploadFile", {
               name: `${item.key}.pdf`,
               file: response.data,
             });
-            console.log(res);
+            await store.dispatch("afiliado/statusContract", {
+              UUID: item.key,
+              status: 1,
+            });
+
+            loadingAction.value.status = false;
           }
         })
         .catch(function (error) {
+           $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "Error intente mas tarde...",
+            });
+          loadingAction.value.status = false;
           console.error(error);
         });
     };
 
     return {
       generateContract,
+      sendContract,
+      loadingAction,
       formUpdate,
       editAction,
       visibleColumns: ref(map(filter(columns, "visible"), "name")),

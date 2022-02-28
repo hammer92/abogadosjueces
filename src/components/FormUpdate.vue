@@ -38,14 +38,29 @@
                 ]"
               />
             </div>
+            <div class="col-12 q-pa-sm">
+              <q-input
+                filled
+                v-model="model.EMAIL"
+                label="Correo Electronico *"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Por favor escriba algo',
+                ]"
+              />
+            </div>
             <div class="col-6 q-pa-sm">
               <q-input filled v-model="model.TELEFONO" label="Telefono" />
             </div>
             <div class="col-6 q-pa-sm">
-              <q-input
+              <q-select
                 filled
-                v-model="model.VALOR_MENSUAL"
-                label="Valor Mensual"
+                :options="affiliatedPlans"
+                v-model="model.PLAN_MENSUAL"
+                label="Plan Mensual"
+                option-value="FileName"
+                option-label="Name"
+                lazy-rules
               />
             </div>
             <div class="col-6 q-pa-sm">
@@ -159,13 +174,16 @@ const initForm = {
   NUMERO_CONTRATO: "0",
   CEDULA: "",
   TELEFONO: "",
-  VALOR_MENSUAL: "",
+  EMAIL: "",
+  PLAN_MENSUAL: "",
   FECHA_AFILIACION: "",
   FECHA_TOKEN: "",
   PRIMER_DESCUENTO: "",
   ANOS: "",
   DEPARTAMENTO: "",
   NOVEDAD: "",
+  PIN_PAGO: "",
+  ESTADOCONTRATO: 0,
 };
 export default defineComponent({
   name: "FormUpdate",
@@ -173,23 +191,26 @@ export default defineComponent({
     const store = useStore();
     const prompt = ref(false);
     const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const affiliatedPlans = computed(() => store.getters["config/AffiliatedPlans"]);
 
     let model = reactive(initForm);
 
     const promptAction = (item) => {
-      console.log(item);
       model.GRADO = item.GRADO;
       model.NOMBRES_COMPLETO = item.NOMBRES_COMPLETO;
       model.CEDULA = item.CEDULA;
+      model.EMAIL = item.EMAIL;
       model.NUMERO_CONTRATO = item.NUMERO_CONTRATO;
       model.TELEFONO = item.TELEFONO;
-      model.VALOR_MENSUAL = item.VALOR_MENSUAL;
+      model.PLAN_MENSUAL = item.PLAN_MENSUAL;
       model.FECHA_AFILIACION = item.FECHA_AFILIACION;
       model.FECHA_TOKEN = item.FECHA_TOKEN;
       model.PRIMER_DESCUENTO = item.PRIMER_DESCUENTO;
       model.ANOS = item.ANOS;
       model.DEPARTAMENTO = item.DEPARTAMENTO;
       model.NOVEDAD = item.NOVEDAD;
+      model.ESTADOCONTRATO = item.ESTADOCONTRATO;
+      model.PIN_PAGO = item.PIN_PAGO;
 
       prompt.value = !prompt.value;
     };
@@ -201,6 +222,7 @@ export default defineComponent({
       model,
       prompt,
       statusList,
+      affiliatedPlans,
       onSubmit() {
         Object.keys(model).forEach(
           (key) => model[key] === undefined && delete model[key]

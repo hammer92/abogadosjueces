@@ -84,6 +84,12 @@ export default {
       
       return update(DbRef, updatesData)
     },
+    statusContract({}, payload){
+      const updatesData = {};
+      updatesData[`Affiliates/${payload.UUID}/ESTADOCONTRATO`] = payload.status;
+      console.log(updatesData)
+      return update(DbRef, updatesData)
+    },
     bindAffiliateRef({ state, commit }) {
       commit("isLoading");
       onValue(
