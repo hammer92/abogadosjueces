@@ -61,13 +61,7 @@
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              <template v-if="col.name === 'PLAN_MENSUAL'">
-                {{ col.value.Name || "" }}
-              </template>
-              <template v-else>
                 {{ col.value }}
-              </template>
-
               <template v-if="col.name === 'NOMBRES_COMPLETO'">
                 <q-btn-dropdown flat color="primary">
                   <template v-slot:label>
@@ -175,13 +169,13 @@ const columns = [
   {
     name: "EMPRESA",
     label: "EMPRESA ",
-    field: "PRIMER_DESCUENTO",
+    field: "EMPRESA",
     visible: false,
   },
   {
     name: "PLAN_MENSUAL",
     label: "PLAN MENSUAL",
-    field: "PLAN_MENSUAL",
+    field: function (item){ return item.PLAN_MENSUAL.Name},
     visible: true,
   },
   {

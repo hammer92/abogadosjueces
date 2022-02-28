@@ -164,6 +164,7 @@ export default defineComponent({
       CEDULA: "",
       DIRECCION: "",
       NUMERO_CONTRATO: "0",
+      ESTADOCONTRATO: 0,
       CIUDAD: "",
       TELEFONO: "",
       EMAIL: "",
@@ -172,7 +173,7 @@ export default defineComponent({
       EMPRESA: "",
       PLAN_MENSUAL: "",
       FECHA_AFILIACION: now,
-      NOVEDAD: "AfiliadoWeb",
+      NOVEDAD: get(AffiliatedDefault, "value.AddStatus"),
     });
 
     const onSubmit = async () => {
