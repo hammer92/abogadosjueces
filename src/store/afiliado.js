@@ -1,9 +1,9 @@
-import { find, map, forEach } from "lodash";
+import { find, map, forEach, identity } from "lodash";
 import { update, onValue } from "firebase/database";
 import * as dayjs from "dayjs";
 import { v5 as uuidv5 } from "uuid";
 
-import { AffiliatesRef, AffiliatesEdit, DbRef } from './firebaseconfig'
+import { AffiliatesRef, DbRef, uploadFile } from './firebaseconfig'
 
 const now = dayjs().format("YYYY-MM-DD");
 const MY_NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
@@ -40,8 +40,18 @@ export default {
         }
       });
     },
-    createAffiliateBulk({ dispatch }, payload) {
+    createAffiliateBulk({state, dispatch }, payload) {
       forEach(payload, (datavalue) => {
+        const UUID = uuidv5(datavalue["CEDULA"].toString(), MY_NAMESPACE);
+        const existe = state.Affiliates[UUID]
+
+        if(existe){
+          Object.keys(existe).forEach((key) => {
+            if(!datavalue.hasOwnProperty(key)){
+              datavalue[key] = existe[key];
+            }
+          });
+        }
         dispatch("createAffiliateRef", datavalue);
       });
 
@@ -51,6 +61,7 @@ export default {
       let ContractNumber = rootGetters['config/AffiliateContractNumber']
       const AffiliatedDefault = rootGetters['config/AffiliatedDefault']
 
+      console.log("payload",payload)
       if (payload["CEDULA"]) payload["CEDULA"] = parseInt(payload["CEDULA"]);
       
       if (payload["TELEFONO"])
@@ -68,6 +79,8 @@ export default {
           ? AffiliatedDefault.AddStatus
           : AffiliatedDefault.ActiveStatus;
       }
+      console.log(typeof payload.PLAN_MENSUAL)
+
       if([0, "0"].includes(payload["NUMERO_CONTRATO"])){
          payload["NUMERO_CONTRATO"] = ContractNumber
          ContractNumber = ContractNumber + 1      
@@ -84,6 +97,12 @@ export default {
       
       return update(DbRef, updatesData)
     },
+    statusContract({}, payload){
+      const updatesData = {};
+      updatesData[`Affiliates/${payload.UUID}/ESTADOCONTRATO`] = payload.status;
+      console.log(updatesData)
+      return update(DbRef, updatesData)
+    },
     bindAffiliateRef({ state, commit }) {
       commit("isLoading");
       onValue(
@@ -97,5 +116,9 @@ export default {
         }
       );
     },
+
+    uploadFile({ state, commit }, payload){
+      return uploadFile(payload)
+    }
   },
 };

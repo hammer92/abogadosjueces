@@ -40,14 +40,14 @@
           <div class="section-planes">
             <div
               class="card-planes basico cursor-pointer"
-              :class="model.PLAN_MENSUAL === item.Name ? 'plan-pro' : 'basico'"
+              :class="model.PLAN_MENSUAL.Name === item.Name ? 'plan-pro' : 'basico'"
               v-for="(item, key) in affiliatedPlans"
               :key="key"
-              @click="model.PLAN_MENSUAL = item.Name"
+              @click="model.PLAN_MENSUAL = item"
             >
               <p>
                 {{
-                  model.PLAN_MENSUAL === item.Name
+                  model.PLAN_MENSUAL.Name === item.Name
                     ? "Plan Seleccionado"
                     : "Plan"
                 }}
@@ -105,8 +105,8 @@
                 <input type="text" v-model="model.GRADO" />
               </div>
               <div class="col-50">
-                <label for="">Pin Descuento</label>
-                <input type="text" v-model="model.PRIMER_DESCUENTO" />
+                <label for="">Pin Desprendible de Pago</label>
+                <input type="text" v-model="model.PIN_PAGO" />
               </div>
               <div class="col-100">
                 <label for="">Empresa</label>
@@ -164,15 +164,16 @@ export default defineComponent({
       CEDULA: "",
       DIRECCION: "",
       NUMERO_CONTRATO: "0",
+      ESTADOCONTRATO: 0,
       CIUDAD: "",
       TELEFONO: "",
       EMAIL: "",
       GRADO: "",
-      PRIMER_DESCUENTO: "",
+      PIN_PAGO: "",
       EMPRESA: "",
       PLAN_MENSUAL: "",
       FECHA_AFILIACION: now,
-      NOVEDAD: "AfiliadoWeb",
+      NOVEDAD: get(AffiliatedDefault, "value.AddStatus"),
     });
 
     const onSubmit = async () => {

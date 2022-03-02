@@ -1,34 +1,48 @@
 <template>
   <q-page class="flex flex-center">
-    <div class="q-pa-md">
-      <q-table ref="table"
-               class="my-sticky-header-column-table"
-               title="Listado Afiliados"
-               :rows="rows"
-               :columns="columns"
-               row-key="name"
-               :visible-columns="visibleColumns"
-               :pagination="pagination"
+    <q-inner-loading
+      :showing="loadingAction.status"
+      :label="loadingAction.message"
+      label-class="text-teal"
+      label-style="font-size: 1.1em"
+    />
+    <div class="q-pa-md" v-show="!loadingAction.status">
+      <q-table
+        ref="table"
+        class="my-sticky-header-column-table"
+        title="Listado Afiliados"
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        :visible-columns="visibleColumns"
+        :pagination="pagination"
       >
         <template v-slot:top="props">
           <div class="col-2 q-table__title">Listado Afiliados</div>
 
-          <q-space/>
-          <dowload-file :rows="rows"
-                        :visible="visibleColumns"
-                        :columns="columns"/>
-          <upload-file/>
+          <q-space />
+          <dowload-file
+            :rows="rows"
+            :visible="visibleColumns"
+            :columns="columns"
+          />
+          <upload-file />
 
-          <form-add/>
+          <form-add />
 
-
-          <q-space/>
-          <q-input dense outlined color="primary" v-model="filterValue" placeholder="Buscar">
+          <q-space />
+          <q-input
+            dense
+            outlined
+            color="primary"
+            v-model="filterValue"
+            placeholder="Buscar"
+          >
             <template v-slot:append>
-              <q-icon name="search"/>
+              <q-icon name="search" />
             </template>
           </q-input>
-          <q-space/>
+          <q-space />
           <q-select
             v-model="visibleColumns"
             multiple
@@ -46,57 +60,158 @@
 
         <template v-slot:body="props">
           <q-tr :props="props">
-            <q-td
-              v-for="col in props.cols"
-              :key="col.name"
-              :props="props"
-            >
-              {{ col.value }}
-              <q-btn v-if="col.name==='NOMBRES_COMPLETO'" style="margin: 0 10px" size="sm" color="accent" dense
-                     @click="editAction(props.row)" icon="edit"/>
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                {{ col.value }}
+              <template v-if="col.name === 'NOMBRES_COMPLETO'">
+                <q-btn-dropdown flat color="primary">
+                  <template v-slot:label>
+                    <div class="q-pa-md q-gutter-md">
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 1"
+                    rounded
+                    color="yellow"
+                  />
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 2"
+                    rounded
+                    color="green"
+                  />
+                  <q-badge
+                    v-if="props.row.ESTADOCONTRATO >= 3"
+                    rounded
+                    color="red"
+                  />
+                </div>
+                  </template>
+                  <q-list>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="editAction(props.row)"
+                    >
+                      <q-item-section>
+                        <q-item-label>Editar</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item
+                      v-if="col.name === 'NOMBRES_COMPLETO'"
+                      clickable
+                      v-close-popup
+                      @click="generateContract(props.row)"
+                    >
+                      <q-item-section>
+                        <q-item-label>Generar Contrato</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sendContract(props.row)"
+                    >
+                      <q-item-section>
+                        <q-item-label>Enviar Contrato</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
+                
+              </template>
             </q-td>
           </q-tr>
         </template>
       </q-table>
-      <form-update ref="formUpdate"/>
-
+      <form-update ref="formUpdate" />
     </div>
   </q-page>
 </template>
 
 <script>
-import {map, filter, lowerCase} from "lodash";
-import {ref, computed} from "vue";
+import { map, filter, lowerCase, get } from "lodash";
+import { ref, computed } from "vue";
+import axios from "axios";
 
-import {useStore} from "vuex";
-
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
 
 import UploadFile from "src/components/UploadFile";
-import DowloadFile from 'src/components/DowloadFile.vue';
+import DowloadFile from "src/components/DowloadFile.vue";
 import FormUpdate from "components/FormUpdate";
 import FormAdd from "components/FormAdd";
 
 const columns = [
-  {name: "NOMBRES_COMPLETO", label: "NOMBRES COMPLETO", field: "NOMBRES_COMPLETO", visible: true, required: true,},
-  {name: "CEDULA", label: "CEDULA", field: "CEDULA", visible: true},
-  {name: "NUMERO_CONTRATO", label: "Nº CONTRATO", field: "NUMERO_CONTRATO", visible: true},
-  {name: "DIRECCION", label: "DIRECCION", field: "DIRECCION", visible: true},
-  {name: "CIUDAD", label: "CIUDAD", field: "CIUDAD", visible: true},
-  {name: "TELEFONO", label: "TELEFONO", field: "TELEFONO", visible: true},
-  {name: "EMAIL", label: "EMAIL", field: "EMAIL", visible: true},
-  {name: "GRADO", label: "GRADO", field: "GRADO", visible: true},
-  {name: "PRIMER_DESCUENTO", label: "PRIMER DESCUENTO", field: "PRIMER_DESCUENTO", visible: false},
-  {name: "EMPRESA", label: "EMPRESA ", field: "PRIMER_DESCUENTO", visible: false},
-  {name: "PLAN_MENSUAL", label: "PLAN MENSUAL", field: "PLAN_MENSUAL", visible: true},
-  {name: "FECHA_AFILIACION", label: "FECHA AFILIACION", field: "FECHA_AFILIACION", visible: true},
-  {name: "NOVEDAD", label: "NOVEDAD", field: "NOVEDAD", visible: true},
-  {name: "FECHA_TOKEN", label: "FECHA TOKEN", field: "FECHA_TOKEN", visible: false},
-  {name: "UPDATE", label: "FECHA ACTUALIZACION", field: "UPDATE", visible: true},
-  {name: "AÑOS", label: "AÑOS", field: "AÑOS", visible: false},
-  {name: "DEPARTAMENTO", label: "DEPARTAMENTO", field: "DEPARTAMENTO", visible: false},
+  {
+    name: "NOMBRES_COMPLETO",
+    label: "NOMBRES COMPLETO",
+    field: "NOMBRES_COMPLETO",
+    visible: true,
+    required: true,
+  },
+  { name: "CEDULA", label: "CEDULA", field: "CEDULA", visible: true },
+  {
+    name: "NUMERO_CONTRATO",
+    label: "Nº CONTRATO",
+    field: "NUMERO_CONTRATO",
+    visible: true,
+  },
+  { name: "DIRECCION", label: "DIRECCION", field: "DIRECCION", visible: true },
+  { name: "CIUDAD", label: "CIUDAD", field: "CIUDAD", visible: true },
+  { name: "TELEFONO", label: "TELEFONO", field: "TELEFONO", visible: true },
+  { name: "EMAIL", label: "EMAIL", field: "EMAIL", visible: true },
+  { name: "GRADO", label: "GRADO", field: "GRADO", visible: true },
+  {
+    name: "PRIMER_DESCUENTO",
+    label: "PRIMER DESCUENTO",
+    field: "PRIMER_DESCUENTO",
+    visible: false,
+  },
+  {
+    name: "EMPRESA",
+    label: "EMPRESA ",
+    field: "EMPRESA",
+    visible: false,
+  },
+  {
+    name: "PLAN_MENSUAL",
+    label: "PLAN MENSUAL",
+    field: function (item){ return (item.PLAN_MENSUAL || {Name:"Sin Plan"}).Name},
+    visible: true,
+  },
+  {
+    name: "FECHA_AFILIACION",
+    label: "FECHA AFILIACION",
+    field: "FECHA_AFILIACION",
+    visible: true,
+  },
+  { name: "NOVEDAD", label: "NOVEDAD", field: "NOVEDAD", visible: true },
+  {
+    name: "FECHA_TOKEN",
+    label: "FECHA TOKEN",
+    field: "FECHA_TOKEN",
+    visible: false,
+  },
+  {
+    name: "UPDATE",
+    label: "FECHA ACTUALIZACION",
+    field: "UPDATE",
+    visible: true,
+  },
+  { name: "AÑOS", label: "AÑOS", field: "AÑOS", visible: false },
+  {
+    name: "DEPARTAMENTO",
+    label: "DEPARTAMENTO",
+    field: "DEPARTAMENTO",
+    visible: false,
+  },
 ];
 
-
+function ValidateEmail(mail) {
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+    return true;
+  }
+  return false;
+}
 export default {
   name: "PageIndex",
   components: {
@@ -107,50 +222,168 @@ export default {
   },
   setup() {
     const store = useStore();
-    const filterValue = ref('')
-    const formUpdate = ref(null)
-    const modelEdit = ref({})
+    const $q = useQuasar();
+
+    const filterValue = ref("");
+    const formUpdate = ref(null);
+    const modelEdit = ref({});
+    const loadingAction = ref({
+      status: false,
+      message: "Cargando...",
+    });
 
     store.dispatch("afiliado/bindAffiliateRef");
 
     const rows = computed(() => store.getters["afiliado/all"]);
-    const loading = computed(() => store.getters["afiliado/loading"])
+    const loading = computed(() => store.getters["afiliado/loading"]);
+    const affiliatedPlans = computed(
+      () => store.getters["config/AffiliatedPlans"]
+    );
 
-    const editAction = (itemEdit) =>{
-      formUpdate.value.promptAction(itemEdit)
-    }
+    const editAction = (itemEdit) => {
+      formUpdate.value.promptAction(itemEdit);
+    };
+
+    const sendContract = ({ key, EMAIL }) => {
+      if (!ValidateEmail(EMAIL)) {
+        $q.notify({
+          color: "red-5",
+          textColor: "white",
+          icon: "warning",
+          message: "correo electronico invalido",
+        });
+        return;
+      }
+      loadingAction.value.status = true;
+      loadingAction.value.message = "enviado contrato por correo...";
+      axios({
+        url: "http://app.abogadosjueces.com.co/send-email",
+        method: "POST",
+        data: { key, EMAIL },
+      })
+        .then(async function ({ data }) {
+          if (data.code === "Error") {
+            $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "No se ha generado un contrato para enviar",
+            });
+            loadingAction.value.status = false;
+
+            return;
+          }
+          await store.dispatch("afiliado/statusContract", {
+            UUID: key,
+            status: 2,
+          });
+          loadingAction.value.status = false;
+        })
+        .catch(function (error) {
+           $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "Error intente mas tarde...",
+            });
+          loadingAction.value.status = false;
+          console.error(error);
+        });
+    };
+
+    const generateContract = (item) => {
+       if (["", null, undefined].includes(item.PLAN_MENSUAL|| "")) {
+        $q.notify({
+          color: "red-5",
+          textColor: "white",
+          icon: "warning",
+          message: "No tiene plan activo",
+        });
+        return;
+      }
+
+      loadingAction.value.status = true;
+      loadingAction.value.message = "Generando contrato...";
+      axios({
+        url: "http://app.abogadosjueces.com.co/fill-data-pdfs",
+        method: "POST",
+        responseType: "blob", // Important
+        data: item,
+      })
+        .then(async function (response) {
+          if (response.status) {
+            loadingAction.value.message = "Guardando contrato...";
+
+            await store.dispatch("afiliado/uploadFile", {
+              name: `${item.key}.pdf`,
+              file: response.data,
+            });
+            await store.dispatch("afiliado/statusContract", {
+              UUID: item.key,
+              status: 1,
+            });
+
+            loadingAction.value.status = false;
+          }
+        })
+        .catch(function (error) {
+           $q.notify({
+              color: "red-5",
+              textColor: "white",
+              icon: "warning",
+              message: "Error intente mas tarde...",
+            });
+          loadingAction.value.status = false;
+          console.error(error);
+        });
+    };
 
     return {
+      generateContract,
+      sendContract,
+      loadingAction,
       formUpdate,
       editAction,
-      visibleColumns: ref(map(filter(columns, 'visible'), "name")),
+      visibleColumns: ref(map(filter(columns, "visible"), "name")),
       columns,
       rows: computed(() => {
         return filter(rows.value, (item) => {
-          if (filterValue.value === "") return true
-          return lowerCase(item.NOMBRES_COMPLETO).indexOf(lowerCase(filterValue.value)) > -1 ||
+          if (filterValue.value === "") return true;
+          return (
+            lowerCase(item.NOMBRES_COMPLETO).indexOf(
+              lowerCase(filterValue.value)
+            ) > -1 ||
             lowerCase(item.GRADO).indexOf(lowerCase(filterValue.value)) > -1 ||
             lowerCase(item.CEDULA).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.TELEFONO).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.VALOR_MENSUAL).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.FECHA_FILIACION).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.FECHA_TOKEN).indexOf(lowerCase(filterValue.value)) > -1 ||
+            lowerCase(item.TELEFONO).indexOf(lowerCase(filterValue.value)) >
+              -1 ||
+            lowerCase(item.VALOR_MENSUAL).indexOf(
+              lowerCase(filterValue.value)
+            ) > -1 ||
+            lowerCase(item.FECHA_FILIACION).indexOf(
+              lowerCase(filterValue.value)
+            ) > -1 ||
+            lowerCase(item.FECHA_TOKEN).indexOf(lowerCase(filterValue.value)) >
+              -1 ||
             lowerCase(item.UPDATE).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.PRIMER_DESCUENTO).indexOf(lowerCase(filterValue.value)) > -1 ||
+            lowerCase(item.PRIMER_DESCUENTO).indexOf(
+              lowerCase(filterValue.value)
+            ) > -1 ||
             lowerCase(item.ANOS).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.DEPARTAMENTO).indexOf(lowerCase(filterValue.value)) > -1 ||
+            lowerCase(item.DEPARTAMENTO).indexOf(lowerCase(filterValue.value)) >
+              -1 ||
             lowerCase(item.NOVEDAD).indexOf(lowerCase(filterValue.value)) > -1
-        })
+          );
+        });
       }),
       modelEdit,
       filterValue,
       loading,
-      pagination: {rowsPerPage: 50},
+      pagination: { rowsPerPage: 50 },
 
       saveItem: (value, initialValue) => {
-        console.log(value, initialValue)
+        console.log(value, initialValue);
       },
-
     };
   },
 };
@@ -199,4 +432,3 @@ export default {
     position: sticky
     left: 0
 </style>
-

@@ -4,7 +4,7 @@
       label="Cargar"
       icon-right="upload"
       color="primary"
-      @click="prompt = !prompt"
+      @click="open"
     />
   </div>
   <q-dialog v-model="prompt">
@@ -18,14 +18,15 @@
           <vue-csv-errors />
           <vue-csv-input />
           <vue-csv-map />
-          <vue-csv-submit />
         </vue-csv-import>
+        <!-- <pre class="mt-15" v-if="csv"><code>{{ csv }}</code></pre> -->
       </q-card-section>
 
       <q-card-actions align="right">
         <q-btn
+          v-if="csv.length > 0"
           flat
-          label="OK"
+          label="Cargar"
           color="primary"
           @click="CargarAfiliados"
           v-close-popup
@@ -40,17 +41,17 @@ import { defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 
 const fieldsImport = {
-  GRADO: { label: "GRADO" },
-  NOMBRES_COMPLETO: { label: "NOMBRES COMPLETO" },
-  CEDULA: { label: "CEDULA" },
-  TELEFONO: { label: "TELEFONO" },
-  VALOR_MENSUAL: { label: "VALOR MENSUAL" },
-  FECHA_AFILIACION: { label: "FECHA AFILIACION" },
-  FECHA_TOKEN: { label: "FECHA TOKEN" },
-  PRIMER_DESCUENTO: { label: "PRIMER DESCUENTO" },
-  ANOS: { label: "AÑOS" },
-  DEPARTAMENTO: { label: "DEPARTAMENTO" },
-  NOVEDAD: { label: "NOVEDAD" },
+  NOMBRES_COMPLETO: { required: true, label: "NOMBRES COMPLETO *" },
+  CEDULA: { required: true, label: "CEDULA *" },
+  DIRECCION: { required: false, label: "DIRECCION" },
+  CIUDAD: { required: false, label: "CIUDAD" },
+  TELEFONO: { required: false, label: "TELEFONO" },
+  EMAIL: { required: true, label: "EMAIL *" },
+  GRADO: { required: false, label: "GRADO" },
+  PIN_PAGO: { required: false, label: "PIN_PAGO" },
+  EMPRESA: { required: false, label: "EMPRESA" },
+  PLAN_MENSUAL: { required: false, label: "PLAN_MENSUAL" },
+  FECHA_AFILIACION: { required: false, label: "FECHA AFILIACION" },
 };
 
 export default defineComponent({
@@ -58,18 +59,24 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const csv = ref([]);
-    const csvImport = ref();
+    const prompt= ref(false)
 
     const CargarAfiliados = () => {
+      csv.value.shift()
+      console.log(csv.value)
       store.dispatch("afiliado/createAffiliateBulk", csv.value);
     };
+    const open = () =>{
+      prompt.value = !prompt.value
+      csv.value = []
+    }
 
     return {
-      csvImport,
+      open,
       fieldsImport,
       CargarAfiliados,
       csv,
-      prompt: ref(false),
+      prompt,
     };
   },
 });

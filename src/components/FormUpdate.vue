@@ -9,46 +9,56 @@
       <q-form @submit="onSubmit">
         <q-card-section style="max-height: 50vh" class="scroll">
           <div class="row">
-            <div class="col-6 q-pa-sm">
-              <q-input
-                filled
-                v-model="model.CEDULA"
-                label="Nº Documento"
-              />
+            <div class="col-4 q-pa-sm">
+              <q-input filled v-model="model.CEDULA" label="Nº Documento *" />
             </div>
-            <div class="col-6 q-pa-sm">
-              <q-input
-                filled
-                v-model="model.GRADO"
-                label="Grado *"
-                lazy-rules
-                :rules="[
-                  (val) => (val && val.length > 0) || 'Por favor escriba algo',
-                ]"
-              />
-            </div>
-            <div class="col-12 q-pa-sm">
+            <div class="col-8 q-pa-sm">
               <q-input
                 filled
                 v-model="model.NOMBRES_COMPLETO"
                 label="Nombre Completo *"
-                lazy-rules
-                :rules="[
-                  (val) => (val && val.length > 0) || 'Por favor escriba algo',
-                ]"
               />
             </div>
-            <div class="col-6 q-pa-sm">
+            <div class="col-4 q-pa-sm">
               <q-input filled v-model="model.TELEFONO" label="Telefono" />
             </div>
-            <div class="col-6 q-pa-sm">
+            <div class="col-8 q-pa-sm">
               <q-input
                 filled
-                v-model="model.VALOR_MENSUAL"
-                label="Valor Mensual"
+                v-model="model.EMAIL"
+                label="Correo Electronico"
               />
             </div>
-            <div class="col-6 q-pa-sm">
+
+            <div class="col-4 q-pa-sm">
+              <q-input filled v-model="model.CIUDAD" label="Ciudad" />
+            </div>
+            <div class="col-8 q-pa-sm">
+              <q-input filled v-model="model.DIRECCION" label="Direccion" />
+            </div>
+
+            <div class="col-4 q-pa-sm">
+              <q-input filled v-model="model.GRADO" label="Grado" />
+            </div>
+            <div class="col-8 q-pa-sm">
+              <q-input filled v-model="model.EMPRESA" label="Empresa" />
+            </div>
+
+            <div class="col-4 q-pa-sm">
+              <q-input filled v-model="model.PIN_PAGO" label="Pin Pago" />
+            </div>
+            <div class="col-8 q-pa-sm">
+              <q-select
+                filled
+                :options="affiliatedPlans"
+                v-model="model.PLAN_MENSUAL"
+                label="Plan Mensual"
+                option-value="FileName"
+                option-label="Name"
+                lazy-rules
+              />
+            </div>
+            <div class="col-4 q-pa-sm">
               <q-input
                 filled
                 label="Fecha Afiliacion *"
@@ -78,56 +88,14 @@
                 </template>
               </q-input>
             </div>
-            <div class="col-6 q-pa-sm">
+            <div class="col-4 q-pa-sm">
               <q-input
                 filled
-                label="Fecha Token *"
-                v-model="model.FECHA_TOKEN"
-                mask="date"
-              >
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy
-                      ref="qDateProxy"
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date v-model="model.FECHA_TOKEN">
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Close"
-                            color="primary"
-                            flat
-                          />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-            </div>
-            <div class="col-6 q-pa-sm">
-              <q-input
-                filled
-                v-model="model.PRIMER_DESCUENTO"
-                label="Primer Descuento *"
-                lazy-rules
+                v-model="model.NUMERO_CONTRATO"
+                label="Nº Contrato"
               />
             </div>
-            <div class="col-6 q-pa-sm">
-              <q-input filled v-model="model.ANOS" label="Año" lazy-rules />
-            </div>
-            <div class="col-6 q-pa-sm">
-              <q-input
-                filled
-                v-model="model.DEPARTAMENTO"
-                label="Departamento"
-                lazy-rules
-              />
-            </div>
-            <div class="col-6 q-pa-sm">
+            <div class="col-4 q-pa-sm">
               <q-select
                 filled
                 :options="statusList"
@@ -154,18 +122,20 @@
 import { defineComponent, ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 const initForm = {
-  GRADO: "",
   NOMBRES_COMPLETO: "",
-  NUMERO_CONTRATO: "0",
   CEDULA: "",
+  DIRECCION: "",
+  NUMERO_CONTRATO: "0",
+  CIUDAD: "",
   TELEFONO: "",
-  VALOR_MENSUAL: "",
+  EMAIL: "",
+  GRADO: "",
+  PIN_PAGO: "",
+  EMPRESA: "",
+  PLAN_MENSUAL: "",
   FECHA_AFILIACION: "",
-  FECHA_TOKEN: "",
-  PRIMER_DESCUENTO: "",
-  ANOS: "",
-  DEPARTAMENTO: "",
-  NOVEDAD: "",
+  NOVEDAD: "Afiliado",
+  ESTADOCONTRATO: 0,
 };
 export default defineComponent({
   name: "FormUpdate",
@@ -173,23 +143,15 @@ export default defineComponent({
     const store = useStore();
     const prompt = ref(false);
     const statusList = computed(() => store.getters["config/AffiliatedState"]);
+    const affiliatedPlans = computed(() => store.getters["config/AffiliatedPlans"]);
 
     let model = reactive(initForm);
 
     const promptAction = (item) => {
-      console.log(item);
-      model.GRADO = item.GRADO;
-      model.NOMBRES_COMPLETO = item.NOMBRES_COMPLETO;
-      model.CEDULA = item.CEDULA;
-      model.NUMERO_CONTRATO = item.NUMERO_CONTRATO;
-      model.TELEFONO = item.TELEFONO;
-      model.VALOR_MENSUAL = item.VALOR_MENSUAL;
-      model.FECHA_AFILIACION = item.FECHA_AFILIACION;
-      model.FECHA_TOKEN = item.FECHA_TOKEN;
-      model.PRIMER_DESCUENTO = item.PRIMER_DESCUENTO;
-      model.ANOS = item.ANOS;
-      model.DEPARTAMENTO = item.DEPARTAMENTO;
-      model.NOVEDAD = item.NOVEDAD;
+    
+    Object.keys(item).forEach(key =>{
+       model[key] = item[key]
+     })
 
       prompt.value = !prompt.value;
     };
@@ -201,6 +163,7 @@ export default defineComponent({
       model,
       prompt,
       statusList,
+      affiliatedPlans,
       onSubmit() {
         Object.keys(model).forEach(
           (key) => model[key] === undefined && delete model[key]
