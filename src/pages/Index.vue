@@ -257,7 +257,7 @@ export default {
       loadingAction.value.status = true;
       loadingAction.value.message = "enviado contrato por correo...";
       axios({
-        url: "http://localhost:8000/send-email",
+        url: "http://app.abogadosjueces.com.co/send-email",
         method: "POST",
         data: { key, EMAIL },
       })
@@ -305,7 +305,7 @@ export default {
       loadingAction.value.status = true;
       loadingAction.value.message = "Generando contrato...";
       axios({
-        url: "http://localhost:8000/fill-data-pdfs",
+        url: "http://app.abogadosjueces.com.co/fill-data-pdfs",
         method: "POST",
         responseType: "blob", // Important
         data: item,
