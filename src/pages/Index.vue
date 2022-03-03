@@ -61,27 +61,27 @@
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.value }}
+              {{ col.value }}
               <template v-if="col.name === 'NOMBRES_COMPLETO'">
                 <q-btn-dropdown flat color="primary">
                   <template v-slot:label>
                     <div class="q-pa-md q-gutter-md">
-                  <q-badge
-                    v-if="props.row.ESTADOCONTRATO >= 1"
-                    rounded
-                    color="yellow"
-                  />
-                  <q-badge
-                    v-if="props.row.ESTADOCONTRATO >= 2"
-                    rounded
-                    color="green"
-                  />
-                  <q-badge
-                    v-if="props.row.ESTADOCONTRATO >= 3"
-                    rounded
-                    color="red"
-                  />
-                </div>
+                      <q-badge
+                        v-if="props.row.ESTADOCONTRATO >= 1"
+                        rounded
+                        color="yellow"
+                      />
+                      <q-badge
+                        v-if="props.row.ESTADOCONTRATO >= 2"
+                        rounded
+                        color="green"
+                      />
+                      <q-badge
+                        v-if="props.row.ESTADOCONTRATO >= 3"
+                        rounded
+                        color="red"
+                      />
+                    </div>
                   </template>
                   <q-list>
                     <q-item
@@ -116,7 +116,6 @@
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
-                
               </template>
             </q-td>
           </q-tr>
@@ -175,7 +174,9 @@ const columns = [
   {
     name: "PLAN_MENSUAL",
     label: "PLAN MENSUAL",
-    field: function (item){ return (item.PLAN_MENSUAL || {Name:"Sin Plan"}).Name},
+    field: function (item) {
+      return (item.PLAN_MENSUAL || { Name: "Sin Plan" }).Name;
+    },
     visible: true,
   },
   {
@@ -280,19 +281,19 @@ export default {
           loadingAction.value.status = false;
         })
         .catch(function (error) {
-           $q.notify({
-              color: "red-5",
-              textColor: "white",
-              icon: "warning",
-              message: "Error intente mas tarde...",
-            });
+          $q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: "Error intente mas tarde...",
+          });
           loadingAction.value.status = false;
           console.error(error);
         });
     };
 
     const generateContract = (item) => {
-       if (["", null, undefined].includes(item.PLAN_MENSUAL|| "")) {
+      if (["", null, undefined].includes(item.PLAN_MENSUAL || "")) {
         $q.notify({
           color: "red-5",
           textColor: "white",
@@ -324,15 +325,22 @@ export default {
             });
 
             loadingAction.value.status = false;
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `${item.key}.pdf`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
           }
         })
         .catch(function (error) {
-           $q.notify({
-              color: "red-5",
-              textColor: "white",
-              icon: "warning",
-              message: "Error intente mas tarde...",
-            });
+          $q.notify({
+            color: "red-5",
+            textColor: "white",
+            icon: "warning",
+            message: "Error intente mas tarde...",
+          });
           loadingAction.value.status = false;
           console.error(error);
         });
