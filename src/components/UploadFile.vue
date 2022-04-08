@@ -41,11 +41,11 @@ import { defineComponent, ref, watch, computed } from "vue";
 import { useStore } from "vuex";
 
 const fieldsImport = {
-  // NOMBRES_COMPLETO: { required: true, label: "NOMBRES COMPLETO *" },
   CEDULA: { required: true, label: "CEDULA *" },
+  NOMBRES_COMPLETO: { required: false, label: "NOMBRES COMPLETO" },
   // DIRECCION: { required: false, label: "DIRECCION" },
   // CIUDAD: { required: false, label: "CIUDAD" },
-  // TELEFONO: { required: false, label: "TELEFONO" },
+  TELEFONO: { required: false, label: "TELEFONO" },
   // EMAIL: { required: true, label: "EMAIL *" },
   // GRADO: { required: false, label: "GRADO" },
   PIN_PAGO: { required: false, label: "PIN_PAGO" },
