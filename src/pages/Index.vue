@@ -114,6 +114,15 @@
                         <q-item-label>Enviar Contrato</q-item-label>
                       </q-item-section>
                     </q-item>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sendContract(props.row)"
+                    >
+                      <q-item-section>
+                        <q-item-label>Cargar Firma Contrato</q-item-label>
+                      </q-item-section>
+                    </q-item>
                   </q-list>
                 </q-btn-dropdown>
               </template>
