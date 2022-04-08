@@ -17,6 +17,7 @@ export default {
 
   getters: {
     all: (state) => Object.keys(state.Affiliates).map(key => ({ key, ...state.Affiliates[key] })) || [],
+    allCedula: (state) => Object.keys(state.Affiliates).map(key => state.Affiliates[key]["CEDULA"] ) || [],
     loading: (state) => state.loading,
   },
 
