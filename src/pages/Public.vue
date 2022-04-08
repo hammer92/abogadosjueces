@@ -92,90 +92,6 @@
       </div>
     </div>
   </div>
-
-  <!-- <div id="wrapper">
-  
-    <div id="main">
-      <div class="inner">
-        <section id="planes">
-          <div class="title">
-            <p>ELIGE LA MEJOR OPCIÓN</p>
-          </div>
-          <div class="section-planes">
-            <div
-              class="card-planes basico cursor-pointer"
-              :class="model.PLAN_MENSUAL.Name === item.Name ? 'plan-pro' : 'basico'"
-              v-for="(item, key) in affiliatedPlans"
-              :key="key"
-              @click="model.PLAN_MENSUAL = item"
-            >
-              <p>
-                {{
-                  model.PLAN_MENSUAL.Name === item.Name
-                    ? "Plan Seleccionado"
-                    : "Plan"
-                }}
-              </p>
-              <div class="line"></div>
-              <p class="valor">{{ item.Value }}</p>
-              <p class="contenido">{{ item.Name }}</p>
-            </div>
-         <div class="card-planes plan-pro">
-              <p>PLAN PRO</p>
-              <div class="line"></div>
-              <p class="valor">$36.600 + IVA</p>
-              <p class="contenido">Asesoría Jirídica</p>
-            </div> 
-          </div>
-        </section>
-        <form id="ajaxForm" v-on:submit.prevent="onSubmit()">
-          <div class="form-inputs">
-            <p class="title">AFÍLIATE CON NOSOTROS</p>
-            <p class="subtitle">
-              Nuestro BUFETE DE ABOGADOS, cuenta con el mejor grupo de abogados,
-              todos a su servicio.
-            </p>
-            <div class="">
-              <div class="col-50">
-                <label for="">Nombre y Apellidos</label>
-                <input type="text" v-model="model.NOMBRES_COMPLETO" />
-              </div>
-              <div class="col-50">
-                <label for="">Nº Identificación C.C</label>
-                <input type="text" v-model="model.CEDULA" />
-              </div>
-              <div class="col-50">
-                <label for="">Direccion Recidencia</label>
-                <input type="text" v-model="model.DIRECCION" />
-              </div>
-
-              <div class="col-50">
-                <label for="">Correo Electrónico</label>
-                <input type="text" v-model="model.EMAIL" />
-              </div>
-              <div class="col-50">
-                <label for="">Celular</label>
-                <input type="text" v-model="model.TELEFONO" />
-              </div>
-
-              <div class="col-50">
-                <label for="">Grado</label>
-                <input type="text" v-model="model.GRADO" />
-              </div>
-              <div class="col-50">
-                <label for="">Pin Desprendible de Pago</label>
-                <input type="text" v-model="model.PIN_PAGO" />
-              </div>
-
-              <div class="flex-center">
-                <button class="btn-yellow">Enviar</button>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div> -->
 </template>
 
 <script>
@@ -217,7 +133,10 @@ export default defineComponent({
       GRADO: "",
       PIN_PAGO: "",
       EMPRESA: "",
-      PLAN_MENSUAL: "",
+      PLAN_MENSUAL: {
+        Name:"",
+        Value:""
+      },
       FECHA_AFILIACION: now,
       NOVEDAD: get(AffiliatedDefault, "value.AddStatus"),
     });

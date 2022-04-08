@@ -44,6 +44,17 @@
           </q-input>
           <q-space />
           <q-select
+            label="Filtro Novedad"
+            v-model="filterState"
+            borderless
+            dense
+            options-dense
+            :options="affiliatedState"
+            style="min-width: 150px"
+          />
+          <q-space />
+          <q-select
+            label="Columnas Visibles"
             v-model="visibleColumns"
             multiple
             borderless
@@ -136,7 +147,7 @@
 </template>
 
 <script>
-import { map, filter, lowerCase, get } from "lodash";
+import { map, filter, lowerCase, concat } from "lodash";
 import { ref, computed } from "vue";
 import axios from "axios";
 
@@ -235,6 +246,8 @@ export default {
     const $q = useQuasar();
 
     const filterValue = ref("");
+    const filterState = ref("");
+
     const formUpdate = ref(null);
     const modelEdit = ref({});
     const loadingAction = ref({
@@ -246,8 +259,8 @@ export default {
 
     const rows = computed(() => store.getters["afiliado/all"]);
     const loading = computed(() => store.getters["afiliado/loading"]);
-    const affiliatedPlans = computed(
-      () => store.getters["config/AffiliatedPlans"]
+    const affiliatedState = computed(() =>
+      concat("Ver Todos", store.getters["config/AffiliatedState"])
     );
 
     const editAction = (itemEdit) => {
@@ -364,40 +377,36 @@ export default {
       visibleColumns: ref(map(filter(columns, "visible"), "name")),
       columns,
       rows: computed(() => {
-        return filter(rows.value, (item) => {
-          if (filterValue.value === "") return true;
-          return (
-            lowerCase(item.NOMBRES_COMPLETO).indexOf(
-              lowerCase(filterValue.value)
-            ) > -1 ||
-            lowerCase(item.GRADO).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.CEDULA).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.TELEFONO).indexOf(lowerCase(filterValue.value)) >
-              -1 ||
-            lowerCase(item.VALOR_MENSUAL).indexOf(
-              lowerCase(filterValue.value)
-            ) > -1 ||
-            lowerCase(item.FECHA_FILIACION).indexOf(
-              lowerCase(filterValue.value)
-            ) > -1 ||
-            lowerCase(item.FECHA_TOKEN).indexOf(lowerCase(filterValue.value)) >
-              -1 ||
-            lowerCase(item.UPDATE).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.PRIMER_DESCUENTO).indexOf(
-              lowerCase(filterValue.value)
-            ) > -1 ||
-            lowerCase(item.ANOS).indexOf(lowerCase(filterValue.value)) > -1 ||
-            lowerCase(item.DEPARTAMENTO).indexOf(lowerCase(filterValue.value)) >
-              -1 ||
-            lowerCase(item.NOVEDAD).indexOf(lowerCase(filterValue.value)) > -1
-          );
-        });
+        return filter(
+          filter(rows.value, (f) => {
+            if (filterState.value === "Ver Todos") return true;
+
+            return (
+              lowerCase(f.NOVEDAD).indexOf(lowerCase(filterState.value)) > -1
+            );
+          }),
+          (item) => {
+            if (filterValue.value === "") return true;
+            return (
+              lowerCase(item.NOMBRES_COMPLETO).indexOf(
+                lowerCase(filterValue.value)
+              ) > -1 ||
+              lowerCase(item.GRADO).indexOf(lowerCase(filterValue.value)) >
+                -1 ||
+              lowerCase(item.CEDULA).indexOf(lowerCase(filterValue.value)) >
+                -1 ||
+              lowerCase(item.TELEFONO).indexOf(lowerCase(filterValue.value)) >
+                -1
+            );
+          }
+        );
       }),
       modelEdit,
       filterValue,
       loading,
       pagination: { rowsPerPage: 50 },
-
+      affiliatedState,
+      filterState,
       saveItem: (value, initialValue) => {
         console.log(value, initialValue);
       },
@@ -411,7 +420,7 @@ export default {
   height: 80vh
 
   /* specifying max-width so the example can
-    highlight the sticky column on any browser window */
+   highlight the sticky column on any browser window */
   max-width: 96vw
 
   td:first-child
@@ -426,7 +435,6 @@ export default {
     background: #fff
 
   /* this will be the loading indicator */
-
 
   thead tr:last-child th
     /* height of all previous header rows */
